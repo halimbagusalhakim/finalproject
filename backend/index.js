@@ -45,12 +45,19 @@ db.sequelize.sync().then(() => {
 });
 
 const PORT = process.env.PORT || 3000;
-const options = {
-  key: fs.readFileSync('key.pem'),
-  cert: fs.readFileSync('cert.pem')
-};
-https.createServer(options, app).listen(PORT, () => {
-  console.log(`Server running on port ${PORT} with HTTPS`);
-});
+
+if (process.env.NODE_ENV === 'production') {
+  const options = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+  };
+  https.createServer(options, app).listen(PORT, () => {
+    console.log(`Server running on port ${PORT} with HTTPS`);
+  });
+} else {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} with HTTP`);
+  });
+}
 
 module.exports = app;
