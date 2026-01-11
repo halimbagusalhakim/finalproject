@@ -60,6 +60,7 @@ function Dashboard() {
   };
 
   const deleteApiKey = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this API key?')) return;
     const token = localStorage.getItem('token');
     try {
       await fetch(`http://localhost:3001/admin/api-keys/${id}`, {
@@ -73,6 +74,7 @@ function Dashboard() {
   };
 
   const deleteUser = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
     const token = localStorage.getItem('token');
     try {
       await fetch(`http://localhost:3001/admin/users/${id}`, {
@@ -86,6 +88,7 @@ function Dashboard() {
   };
 
   const deleteLog = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this log?')) return;
     const token = localStorage.getItem('token');
     try {
       await fetch(`http://localhost:3001/admin/logs/${id}`, {
