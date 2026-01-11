@@ -77,6 +77,9 @@ router.delete('/users/:id', verifyToken, requireAdmin, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+    // Delete associated API keys and logs first
+    await Apikey.destroy({ where: { userId: id } });
+    await Apirequestlog.destroy({ where: { userId: id } });
     await user.destroy();
     res.json({ message: 'User deleted' });
   } catch (error) {
