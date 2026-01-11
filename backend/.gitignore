@@ -1,0 +1,29 @@
+/node_modules
+.env
+/dist
+.DS_Store
+/logs
+*.log
+/coverage
+/tmp
+/.build
+.vscode
+.idea
+
+# SSL certificates (contain private keys)
+key.pem
+cert.pem
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# OS generated files
+Thumbs.db
+*.swp
+*.swo
+
+# IDE files
+*.sublime-project
+*.sublime-workspace

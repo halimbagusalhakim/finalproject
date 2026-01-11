@@ -1,0 +1,74 @@
+.App {
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.App-header {
+  background-color: #282c34;
+  padding: 20px;
+  color: white;
+}
+
+.App-header h1 {
+  margin: 0;
+}
+
+main {
+  padding: 20px;
+}
+
+.api-section {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.api-key {
+  margin-bottom: 20px;
+}
+
+.api-key label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.api-key input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.buttons {
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 5px;
+  background-color: #61dafb;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #21b4d6;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.data-display {
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 10px;
+  white-space: pre-wrap;
+  font-family: monospace;
+  max-height: 400px;
+  overflow-y: auto;
+}
