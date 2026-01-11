@@ -5,59 +5,75 @@ import './LandingPage.css';
 function LandingPage() {
   return (
     <div className="landing-page">
+      {/* Hero Section dengan Overlay */}
       <header className="hero">
-        <h1>Welcome to MotoGP World</h1>
-        <p>Experience the thrill of motorcycle racing</p>
+        <div className="hero-content">
+          <span className="badge">Official Data Partner</span>
+          <h1>Experience The <span className="text-gradient">MotoGP</span> Speed</h1>
+          <p>The ultimate destination for motorcycle racing data and real-time statistics.</p>
+          <div className="hero-btns">
+            <Link to="/login" className="cta-button">Access API Now</Link>
+            <a href="#about" className="btn-outline">Learn More</a>
+          </div>
+        </div>
       </header>
 
-      <section className="about">
+      {/* Stats Section */}
+      <section id="about" className="stats-section">
         <div className="container">
-          <h2>About MotoGP</h2>
-          <p>MotoGP is the premier class of motorcycle road racing. Since its inception in 1949, it has evolved into a global spectacle featuring the world's best riders competing on cutting-edge technology. The championship consists of 20+ races across 5 continents, showcasing speed, skill, and innovation.</p>
-          <div className="stats">
-            <div className="stat">
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-icon">🏁</div>
               <h3>20+</h3>
-              <p>Races per season</p>
+              <p>Global GP Tracks</p>
             </div>
-            <div className="stat">
+            <div className="stat-card">
+              <div className="stat-icon">🏍️</div>
               <h3>25</h3>
-              <p>Riders per race</p>
+              <p>Elite Riders</p>
             </div>
-            <div className="stat">
-              <h3>350km/h</h3>
-              <p>Top speeds</p>
+            <div className="stat-card">
+              <div className="stat-icon">⚡</div>
+              <h3>350<small>km/h</small></h3>
+              <p>Top Speed Record</p>
             </div>
-            <div className="stat">
+            <div className="stat-card">
+              <div className="stat-icon">🏆</div>
               <h3>75+</h3>
-              <p>Years of history</p>
+              <p>Years of History</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="api-section">
+      {/* Features / API Section */}
+      <section className="features">
         <div className="container">
-          <h2>MotoGP Open API</h2>
-          <p>Access comprehensive MotoGP data through our open API. Get real-time information about riders, teams, standings, and statistics to build your own MotoGP applications.</p>
-          <div className="api-features">
-            <div className="feature-card">
-              <h3>Rider Profiles</h3>
-              <p>Detailed information about MotoGP riders including their nationality, team, and performance stats</p>
+          <div className="section-header">
+            <h2>MotoGP Open API</h2>
+            <p>Powerful endpoints to fuel your racing applications.</p>
+          </div>
+          <div className="feature-grid">
+            <div className="feature-item">
+              <div className="feature-status">Stable</div>
+              <h3>Rider Analytics</h3>
+              <p>Biometrics, career history, and live performance metrics from every circuit.</p>
             </div>
-            <div className="feature-card">
-              <h3>Team Data</h3>
-              <p>Complete team information, history, and current season performance</p>
+            <div className="feature-item">
+              <div className="feature-status">Real-time</div>
+              <h3>Team Insights</h3>
+              <p>Comprehensive constructor data, technical specs, and team championship points.</p>
             </div>
           </div>
-          <Link to="/login" className="cta-button">Access API</Link>
         </div>
       </section>
 
-      <section className="cta">
-        <div className="container">
-          <h2>Ready to Explore MotoGP Data?</h2>
-          <p>Join our community of developers and racing enthusiasts. Create an account to access the MotoGP Open API and start building amazing applications.</p>
-          <Link to="/login" className="cta-button secondary">Get Started</Link>
+      {/* Bottom CTA */}
+      <section className="final-cta">
+        <div className="cta-container">
+          <h2>Ready to Start Racing?</h2>
+          <p>Join thousands of developers worldwide using our racing engine.</p>
+          <Link to="/login" className="cta-button secondary">Create Developer Account</Link>
         </div>
       </section>
     </div>

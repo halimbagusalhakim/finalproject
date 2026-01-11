@@ -18,25 +18,17 @@ function Login() {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
+      if (!response.ok) throw new Error('Invalid email or password');
 
       const data = await response.json();
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-      if (data.user.role === 'admin') {
-        navigate('/dashboard');
-      } else {
-        navigate('/apikey');
-      }
+      data.user.role === 'admin' ? navigate('/dashboard') : navigate('/apikey');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -46,35 +38,53 @@ function Login() {
 
   return (
     <div className="login-container">
-      <div className="login-form">
-        <h2>Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">Email:</label>
+      {/* Elemen Dekoratif Latar Belakang */}
+      <div className="bg-glow"></div>
+      
+      <div className="login-card">
+        <div className="login-header">
+          <Link to="/" className="back-link">← Back to Home</Link>
+          <h2>MotoGP <span className="red-text">Login</span></h2>
+          <p>Enter your credentials to access the race data.</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="login-form-content">
+          <div className="form-input-group">
+            <label>Email Address</label>
             <input
               type="email"
-              id="email"
+              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="password">Password:</label>
+
+          <div className="form-input-group">
+            <label>Password</label>
             <input
               type="password"
-              id="password"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          {error && <p className="error">{error}</p>}
-          <button type="submit" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+
+          {error && (
+            <div className="error-box">
+              <span>⚠️</span> {error}
+            </div>
+          )}
+
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? <span className="loader"></span> : 'Sign In'}
           </button>
         </form>
-        <p>Don't have an account? <Link to="/register">Register here</Link></p>
+
+        <div className="login-footer">
+          <p>New to the paddock? <Link to="/register">Create Account</Link></p>
+        </div>
       </div>
     </div>
   );

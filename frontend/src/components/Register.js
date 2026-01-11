@@ -11,6 +11,7 @@ function Register() {
     confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -22,9 +23,10 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
 
@@ -32,9 +34,7 @@ function Register() {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: formData.username,
           email: formData.email,
@@ -42,14 +42,12 @@ function Register() {
         })
       });
 
-      if (!response.ok) {
-        throw new Error('Registration failed');
-      }
+      if (!response.ok) throw new Error('Registration failed. Try another email.');
 
-      alert('Registration successful! Please login.');
+      alert('Account created! Welcome to the paddock.');
       navigate('/login');
     } catch (error) {
-      alert(error.message);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
@@ -57,54 +55,74 @@ function Register() {
 
   return (
     <div className="register-container">
-      <div className="register-form">
-        <h2>Register</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
+      <div className="bg-glow-register"></div>
+      
+      <div className="register-card">
+        <div className="register-header">
+          <Link to="/" className="back-link">← Back to Home</Link>
+          <h2>Join the <span className="red-text">Paddock</span></h2>
+          <p>Create your developer account to access MotoGP API.</p>
+        </div>
+
+        {error && <div className="error-message">⚠️ {error}</div>}
+
+        <form onSubmit={handleSubmit} className="register-form-grid">
+          <div className="form-group-custom">
             <label>Username</label>
             <input
               type="text"
               name="username"
+              placeholder="RacerID"
               value={formData.username}
               onChange={handleChange}
               required
             />
           </div>
-          <div className="form-group">
+
+          <div className="form-group-custom">
             <label>Email</label>
             <input
               type="email"
               name="email"
+              placeholder="rider@gpworld.com"
               value={formData.email}
               onChange={handleChange}
               required
             />
           </div>
-          <div className="form-group">
+
+          <div className="form-group-custom">
             <label>Password</label>
             <input
               type="password"
               name="password"
+              placeholder="••••••••"
               value={formData.password}
               onChange={handleChange}
               required
             />
           </div>
-          <div className="form-group">
+
+          <div className="form-group-custom">
             <label>Confirm Password</label>
             <input
               type="password"
               name="confirmPassword"
+              placeholder="••••••••"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
             />
           </div>
-          <button type="submit" disabled={loading}>
-            {loading ? 'Registering...' : 'Register'}
+
+          <button type="submit" className="register-btn" disabled={loading}>
+            {loading ? <span className="loader-mini"></span> : 'Create Account'}
           </button>
         </form>
-        <p>Already have an account? <Link to="/login">Login</Link></p>
+
+        <div className="register-footer">
+          <p>Member already? <Link to="/login">Sign In</Link></p>
+        </div>
       </div>
     </div>
   );

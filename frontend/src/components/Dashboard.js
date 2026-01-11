@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Dashboard.css';
 
 function Dashboard() {
@@ -19,7 +19,6 @@ function Dashboard() {
       navigate('/login');
       return;
     }
-
     fetchData();
   }, [navigate]);
 
@@ -27,15 +26,9 @@ function Dashboard() {
     const token = localStorage.getItem('token');
     try {
       const [usersRes, keysRes, logsRes] = await Promise.all([
-        fetch('http://localhost:3001/admin/users', {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/admin/api-keys', {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/admin/logs', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        fetch('http://localhost:3001/admin/users', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('http://localhost:3001/admin/api-keys', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('http://localhost:3001/admin/logs', { headers: { Authorization: `Bearer ${token}` } })
       ]);
 
       if (usersRes.ok) setUsers(await usersRes.json());
@@ -46,6 +39,7 @@ function Dashboard() {
     }
   };
 
+  // ... (Keep the toggle/delete functions as they were) ...
   const toggleApiKey = async (id) => {
     const token = localStorage.getItem('token');
     try {
@@ -54,27 +48,11 @@ function Dashboard() {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
-    } catch (error) {
-      console.error('Error toggling API key:', error);
-    }
-  };
-
-  const deleteApiKey = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this API key?')) return;
-    const token = localStorage.getItem('token');
-    try {
-      await fetch(`http://localhost:3001/admin/api-keys/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchData();
-    } catch (error) {
-      console.error('Error deleting API key:', error);
-    }
+    } catch (error) { console.error(error); }
   };
 
   const deleteUser = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    if (!window.confirm('Delete this user?')) return;
     const token = localStorage.getItem('token');
     try {
       await fetch(`http://localhost:3001/admin/users/${id}`, {
@@ -82,23 +60,7 @@ function Dashboard() {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-    }
-  };
-
-  const deleteLog = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this log?')) return;
-    const token = localStorage.getItem('token');
-    try {
-      await fetch(`http://localhost:3001/admin/logs/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      fetchData();
-    } catch (error) {
-      console.error('Error deleting log:', error);
-    }
+    } catch (error) { console.error(error); }
   };
 
   const openAddUserModal = () => {
@@ -110,208 +72,171 @@ function Dashboard() {
   const openEditUserModal = (user) => {
     setIsEdit(true);
     setCurrentUser(user);
-    setFormData({ username: user.username, email: user.email, password: '', role: user.role });
+    setFormData({ username: user.username, email: user.email, role: user.role });
     setShowModal(true);
   };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
+    const url = isEdit ? `http://localhost:3001/admin/users/${currentUser.id}` : 'http://localhost:3001/admin/users';
+    const method = isEdit ? 'PUT' : 'POST';
+    
     try {
-      if (isEdit) {
-        await fetch(`http://localhost:3001/admin/users/${currentUser.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ username: formData.username, email: formData.email, role: formData.role })
-        });
-      } else {
-        await fetch('http://localhost:3001/admin/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify(formData)
-        });
-      }
+      await fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(formData)
+      });
       setShowModal(false);
       fetchData();
-    } catch (error) {
-      console.error('Error saving user:', error);
-    }
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/');
+    } catch (error) { console.error(error); }
   };
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>Admin Dashboard</h1>
-        <button onClick={logout} className="logout-btn">Logout</button>
-      </header>
-      <nav className="dashboard-nav">
-        <button
-          className={activeTab === 'users' ? 'active' : ''}
-          onClick={() => setActiveTab('users')}
-        >
-          Users
+    <div className="admin-dashboard">
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <Link to="/" className="brand-text">MotoGP<span>Admin</span></Link>
+        </div>
+        <nav className="sidebar-nav">
+          <button className={activeTab === 'users' ? 'active' : ''} onClick={() => setActiveTab('users')}>
+            <span>👥</span> Users
+          </button>
+          <button className={activeTab === 'apikeys' ? 'active' : ''} onClick={() => setActiveTab('apikeys')}>
+            <span>🔑</span> API Keys
+          </button>
+          <button className={activeTab === 'logs' ? 'active' : ''} onClick={() => setActiveTab('logs')}>
+            <span>📋</span> Activity Logs
+          </button>
+        </nav>
+        <button onClick={() => { localStorage.clear(); navigate('/'); }} className="logout-sidebar">
+          Logout
         </button>
-        <button
-          className={activeTab === 'apikeys' ? 'active' : ''}
-          onClick={() => setActiveTab('apikeys')}
-        >
-          API Keys
-        </button>
-        <button
-          className={activeTab === 'logs' ? 'active' : ''}
-          onClick={() => setActiveTab('logs')}
-        >
-          Logs
-        </button>
-      </nav>
-      <main className="dashboard-content">
-        {activeTab === 'users' && (
-          <div>
-            <h2>Users</h2>
-            <button onClick={openAddUserModal}>Add User</button>
+      </aside>
+
+      <main className="main-content">
+        <header className="main-header">
+          <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Management</h2>
+          {activeTab === 'users' && (
+            <button onClick={openAddUserModal} className="btn-add">+ New User</button>
+          )}
+        </header>
+
+        <div className="table-container fade-in">
+          {activeTab === 'users' && (
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Username</th>
-                  <th>Email</th>
+                  <th>User</th>
                   <th>Role</th>
-                  <th>API Key</th>
-                  <th>Key Active</th>
+                  <th>API Key Status</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map(user => (
                   <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.username}</td>
-                    <td>{user.email}</td>
-                    <td>{user.role}</td>
-                    <td>{user.Apikeys && user.Apikeys.length > 0 ? user.Apikeys[0].key : 'None'}</td>
-                    <td>{user.Apikeys && user.Apikeys.length > 0 ? (user.Apikeys[0].isActive ? 'Yes' : 'No') : 'N/A'}</td>
                     <td>
-                      <button onClick={() => openEditUserModal(user)}>Edit</button>
-                      <button onClick={() => deleteUser(user.id)}>Delete</button>
+                      <div className="user-info">
+                        <span className="u-name">{user.username}</span>
+                        <span className="u-email">{user.email}</span>
+                      </div>
+                    </td>
+                    <td><span className={`badge-role ${user.role}`}>{user.role}</span></td>
+                    <td>
+                      {user.Apikeys?.[0] ? (
+                        <span className={`status-dot ${user.Apikeys[0].isActive ? 'active' : 'inactive'}`}>
+                          {user.Apikeys[0].isActive ? 'Active' : 'Disabled'}
+                        </span>
+                      ) : 'None'}
+                    </td>
+                    <td className="actions-cell">
+                      <button className="btn-edit" onClick={() => openEditUserModal(user)}>Edit</button>
+                      <button className="btn-delete" onClick={() => deleteUser(user.id)}>Delete</button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-        )}
-        {activeTab === 'apikeys' && (
-          <div>
-            <h2>API Keys</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>User ID</th>
-                  <th>Key</th>
-                  <th>Active</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {apiKeys.map(key => (
-                  <tr key={key.id}>
-                    <td>{key.id}</td>
-                    <td>{key.userId}</td>
-                    <td>{key.key}</td>
-                    <td>{key.isActive ? 'Yes' : 'No'}</td>
-                    <td>
-                      <button onClick={() => toggleApiKey(key.id)}>
-                        {key.isActive ? 'Deactivate' : 'Activate'}
-                      </button>
-                      <button onClick={() => deleteApiKey(key.id)}>Delete</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {activeTab === 'logs' && (
-          <div>
-            <h2>Request Logs</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>User ID</th>
-                  <th>Endpoint</th>
-                  <th>Method</th>
-                  <th>Timestamp</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+          )}
+
+          {activeTab === 'apikeys' && (
+             <table>
+             <thead>
+               <tr>
+                 <th>Key</th>
+                 <th>User ID</th>
+                 <th>Status</th>
+                 <th>Actions</th>
+               </tr>
+             </thead>
+             <tbody>
+               {apiKeys.map(key => (
+                 <tr key={key.id}>
+                   <td className="mono-text">{key.key.substring(0, 15)}...</td>
+                   <td>#{key.userId}</td>
+                   <td>
+                     <span className={`status-pill ${key.isActive ? 'on' : 'off'}`}>
+                        {key.isActive ? 'Active' : 'Revoked'}
+                     </span>
+                   </td>
+                   <td className="actions-cell">
+                     <button onClick={() => toggleApiKey(key.id)} className="btn-toggle">
+                       {key.isActive ? 'Disable' : 'Enable'}
+                     </button>
+                   </td>
+                 </tr>
+               ))}
+             </tbody>
+           </table>
+          )}
+
+          {activeTab === 'logs' && (
+             <div className="log-list">
                 {logs.map(log => (
-                  <tr key={log.id}>
-                    <td>{log.id}</td>
-                    <td>{log.userId}</td>
-                    <td>{log.endpoint}</td>
-                    <td>{log.method}</td>
-                    <td>{new Date(log.createdAt).toLocaleString()}</td>
-                    <td>
-                      <button onClick={() => deleteLog(log.id)}>Delete</button>
-                    </td>
-                  </tr>
+                  <div className="log-item" key={log.id}>
+                    <span className="log-method">{log.method}</span>
+                    <span className="log-path">{log.endpoint}</span>
+                    <span className="log-time">{new Date(log.createdAt).toLocaleString()}</span>
+                    <span className="log-user">User ID: {log.userId}</span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+             </div>
+          )}
+        </div>
       </main>
 
       {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>{isEdit ? 'Edit User' : 'Add User'}</h3>
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>{isEdit ? 'Update Racer Data' : 'Enlist New Racer'}</h3>
             <form onSubmit={handleFormSubmit}>
-              <input
-                type="text"
-                placeholder="Username"
-                value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                required
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
+              <div className="form-field">
+                <label>Username</label>
+                <input type="text" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} required />
+              </div>
+              <div className="form-field">
+                <label>Email</label>
+                <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
+              </div>
               {!isEdit && (
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                />
+                <div className="form-field">
+                  <label>Password</label>
+                  <input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
+                </div>
               )}
-              <select
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-              <button type="submit">{isEdit ? 'Update' : 'Create'}</button>
-              <button type="button" onClick={closeModal}>Cancel</button>
+              <div className="form-field">
+                <label>Role</label>
+                <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })}>
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <div className="modal-actions">
+                <button type="submit" className="btn-save">Save Changes</button>
+                <button type="button" onClick={() => setShowModal(false)} className="btn-cancel">Cancel</button>
+              </div>
             </form>
           </div>
         </div>
