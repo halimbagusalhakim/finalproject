@@ -22,7 +22,7 @@ function ApiKeyPage() {
     const token = localStorage.getItem('token');
     setLoading(true);
     try {
-      const response = await fetch('https://localhost:3001/api-keys/generate', {
+      const response = await fetch('http://localhost:3001/api-keys/generate', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`
@@ -50,7 +50,7 @@ function ApiKeyPage() {
     }
     setLoading(true);
     try {
-      const response = await fetch('https://localhost:3001/api/data', {
+      const response = await fetch('http://localhost:3001/api/data', {
         headers: {
           'X-API-Key': testKey
         }

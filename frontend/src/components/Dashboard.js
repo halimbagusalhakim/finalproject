@@ -27,13 +27,13 @@ function Dashboard() {
     const token = localStorage.getItem('token');
     try {
       const [usersRes, keysRes, logsRes] = await Promise.all([
-        fetch('https://localhost:3001/admin/users', {
+        fetch('http://localhost:3001/admin/users', {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        fetch('https://localhost:3001/admin/api-keys', {
+        fetch('http://localhost:3001/admin/api-keys', {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        fetch('https://localhost:3001/admin/logs', {
+        fetch('http://localhost:3001/admin/logs', {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -49,7 +49,7 @@ function Dashboard() {
   const toggleApiKey = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      await fetch(`https://localhost:3001/admin/api-keys/${id}/toggle`, {
+      await fetch(`http://localhost:3001/admin/api-keys/${id}/toggle`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -62,7 +62,7 @@ function Dashboard() {
   const deleteApiKey = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      await fetch(`https://localhost:3001/admin/api-keys/${id}`, {
+      await fetch(`http://localhost:3001/admin/api-keys/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -75,7 +75,7 @@ function Dashboard() {
   const deleteUser = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      await fetch(`https://localhost:3001/admin/users/${id}`, {
+      await fetch(`http://localhost:3001/admin/users/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -88,7 +88,7 @@ function Dashboard() {
   const deleteLog = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      await fetch(`https://localhost:3001/admin/logs/${id}`, {
+      await fetch(`http://localhost:3001/admin/logs/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -116,13 +116,13 @@ function Dashboard() {
     const token = localStorage.getItem('token');
     try {
       if (isEdit) {
-        await fetch(`https://localhost:3001/admin/users/${currentUser.id}`, {
+        await fetch(`http://localhost:3001/admin/users/${currentUser.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ username: formData.username, email: formData.email, role: formData.role })
         });
       } else {
-        await fetch('https://localhost:3001/admin/users', {
+        await fetch('http://localhost:3001/admin/users', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify(formData)
