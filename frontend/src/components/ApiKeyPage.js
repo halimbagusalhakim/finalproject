@@ -4,6 +4,8 @@ import './ApiKeyPage.css';
 
 function ApiKeyPage() {
   const [apiKey, setApiKey] = useState('');
+  const [isActive, setIsActive] = useState(false);
+  const [expiresAt, setExpiresAt] = useState(null);
   const [testKey, setTestKey] = useState('');
   const [loading, setLoading] = useState(false);
   const [testResult, setTestResult] = useState('');
@@ -14,8 +16,27 @@ function ApiKeyPage() {
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
+      return;
     }
+    fetchApiKey();
   }, [navigate]);
+
+  const fetchApiKey = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch('http://localhost:3001/api-keys', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setApiKey(data.key || '');
+        setIsActive(data.isActive || false);
+        setExpiresAt(data.expiresAt);
+      }
+    } catch (error) {
+      console.error('Error fetching API key:', error);
+    }
+  };
 
   const generateApiKey = async () => {
     const token = localStorage.getItem('token');
@@ -28,6 +49,8 @@ function ApiKeyPage() {
       if (!response.ok) throw new Error('Failed to generate API key');
       const result = await response.json();
       setApiKey(result.key);
+      setIsActive(true);
+      setExpiresAt(result.expiresAt);
     } catch (error) {
       alert(error.message);
     } finally {
@@ -90,10 +113,17 @@ function ApiKeyPage() {
             </div>
             <p>Generate a secure X-API-Key to authenticate your requests.</p>
             
-            {!apiKey ? (
-              <button onClick={generateApiKey} disabled={loading} className="btn-primary">
-                {loading ? 'Generating...' : 'Generate New Key'}
-              </button>
+            {!apiKey || !isActive ? (
+              <div className="key-status-message">
+                {!apiKey ? (
+                  <p>You don't have an API key yet.</p>
+                ) : (
+                  <p>Your API key has been deactivated by the administrator.</p>
+                )}
+                <button onClick={generateApiKey} disabled={loading} className="btn-primary">
+                  {loading ? 'Generating...' : 'Generate New Key'}
+                </button>
+              </div>
             ) : (
               <div className="key-box-reveal">
                 <label>Active API Key</label>
@@ -103,7 +133,14 @@ function ApiKeyPage() {
                     Copy
                   </button>
                 </div>
-                <span className="status-tag">● Active</span>
+                <div className="key-info">
+                  <span className="status-tag">● Active</span>
+                  {expiresAt && (
+                    <span className="expiry-info">
+                      Expires: {new Date(expiresAt).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
               </div>
             )}
           </section>

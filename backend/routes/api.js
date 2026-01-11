@@ -23,8 +23,13 @@ const verifyApiKey = async (req, res, next) => {
       where: { key: apiKey },
       include: [{ model: require('../models').User, as: 'User' }]
     });
-    if (!keyRecord) {
+    if (!keyRecord || !keyRecord.isActive) {
       return res.status(401).json({ message: 'Invalid API key' });
+    }
+
+    // Check if API key has expired
+    if (keyRecord.expiresAt && new Date() > new Date(keyRecord.expiresAt)) {
+      return res.status(401).json({ message: 'API key has expired' });
     }
 
     // Log the request

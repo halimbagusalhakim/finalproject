@@ -33,7 +33,7 @@ router.get('/users', verifyToken, requireAdmin, async (req, res) => {
   try {
     const users = await User.findAll({
       attributes: ['id', 'username', 'email', 'role'],
-      include: [{ model: Apikey, as: 'Apikeys', attributes: ['key', 'isActive'] }]
+      include: [{ model: Apikey, as: 'Apikeys', attributes: ['key', 'isActive'], where: { isActive: true }, required: false }]
     });
     res.json(users);
   } catch (error) {

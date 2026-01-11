@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
   Apikey.init({
     key: DataTypes.STRING,
     userId: DataTypes.INTEGER,
-    isActive: DataTypes.BOOLEAN
+    isActive: DataTypes.BOOLEAN,
+    expiresAt: DataTypes.DATE
   }, {
     sequelize,
     modelName: 'Apikey',

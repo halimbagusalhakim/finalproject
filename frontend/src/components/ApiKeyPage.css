@@ -199,6 +199,31 @@ input[type="text"] {
   font-weight: bold;
 }
 
+.key-info {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.expiry-info {
+  color: #ffa500;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Key Status Message */
+.key-status-message {
+  text-align: center;
+  padding: 20px;
+}
+
+.key-status-message p {
+  margin-bottom: 20px;
+  color: #ff6b6b;
+  font-weight: 500;
+}
+
 @media (max-width: 768px) {
   .grid-layout { grid-template-columns: 1fr; }
   .test-input-group { flex-direction: column; }
