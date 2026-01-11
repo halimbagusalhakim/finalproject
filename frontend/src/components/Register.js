@@ -12,6 +12,7 @@ function Register() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -44,8 +45,7 @@ function Register() {
 
       if (!response.ok) throw new Error('Registration failed. Try another email.');
 
-      alert('Account created! Welcome to the paddock.');
-      navigate('/login');
+      setShowSuccessModal(true);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -124,6 +124,17 @@ function Register() {
           <p>Member already? <Link to="/login">Sign In</Link></p>
         </div>
       </div>
+
+      {showSuccessModal && (
+        <div className="modal-overlay">
+          <div className="modal-box success-modal">
+            <div className="success-icon">✅</div>
+            <h3>Registration Successful!</h3>
+            <p>Welcome to the paddock! Your account has been created.</p>
+            <button onClick={() => navigate('/login')} className="btn-save">Go to Login</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

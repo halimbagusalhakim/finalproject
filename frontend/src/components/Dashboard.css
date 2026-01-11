@@ -146,6 +146,10 @@ td {
 .status-dot.active { color: #00ff00; }
 .status-dot.inactive { color: #ff4d4d; }
 
+.status-pill.on { color: #00ff00; }
+.status-pill.off { color: #ff4d4d; }
+.status-pill.expired { color: #ff4d4d; font-weight: bold; }
+
 .active-date { color: #00ff00; }
 .expired-date { color: #ff4d4d; font-weight: bold; }
 

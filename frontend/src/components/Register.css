@@ -160,6 +160,59 @@
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* Success Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-box.success-modal {
+  background: #111;
+  border: 1px solid #222;
+  padding: 40px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.success-modal .success-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.success-modal h3 {
+  color: white;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.success-modal p {
+  color: #888;
+  margin-bottom: 30px;
+}
+
+.success-modal .btn-save {
+  background: #e10600;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.success-modal .btn-save:hover {
+  background: #ff1a1a;
+}
+
 @media (max-width: 480px) {
   .register-card { padding: 30px 20px; }
   .register-header h2 { font-size: 1.8rem; }

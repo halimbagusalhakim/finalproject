@@ -32,6 +32,9 @@ const requireAdmin = (req, res, next) => {
 router.get('/users', verifyToken, requireAdmin, async (req, res) => {
   try {
     const users = await User.findAll({
+      where: {
+        id: { [require('sequelize').Op.ne]: req.user.id } // Exclude current admin user
+      },
       attributes: ['id', 'username', 'email', 'role'],
       include: [{
         model: Apikey,

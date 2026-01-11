@@ -199,32 +199,46 @@ function Dashboard() {
                </tr>
              </thead>
              <tbody>
-               {apiKeys.map(key => (
-                 <tr key={key.id}>
-                   <td className="mono-text">{key.key.substring(0, 15)}...</td>
-                   <td>{key.User?.username || `User #${key.userId}`}</td>
-                   <td>
-                     <span className={`status-pill ${key.isActive ? 'on' : 'off'}`}>
-                        {key.isActive ? 'Active' : 'Revoked'}
-                     </span>
-                   </td>
-                   <td>
-                     {key.expiresAt ? (
-                       <span className={new Date(key.expiresAt) < new Date() ? 'expired-date' : 'active-date'}>
-                         {new Date(key.expiresAt).toLocaleDateString()}
+               {apiKeys.map(key => {
+                 const isExpired = key.expiresAt && new Date(key.expiresAt) < new Date();
+                 let statusText, statusClass;
+                 if (!key.isActive) {
+                   statusText = 'Revoked';
+                   statusClass = 'off';
+                 } else if (isExpired) {
+                   statusText = 'Expired';
+                   statusClass = 'expired';
+                 } else {
+                   statusText = 'Active';
+                   statusClass = 'on';
+                 }
+                 return (
+                   <tr key={key.id}>
+                     <td className="mono-text">{key.key.substring(0, 15)}...</td>
+                     <td>{key.User?.username || `User #${key.userId}`}</td>
+                     <td>
+                       <span className={`status-pill ${statusClass}`}>
+                         {statusText}
                        </span>
-                     ) : 'Never'}
-                   </td>
-                   <td className="actions-cell">
-                     <button onClick={() => openEditKeyModal(key)} className="btn-edit">
-                       Edit
-                     </button>
-                     <button onClick={() => toggleApiKey(key.id)} className="btn-toggle">
-                       {key.isActive ? 'Disable' : 'Enable'}
-                     </button>
-                   </td>
-                 </tr>
-               ))}
+                     </td>
+                     <td>
+                       {key.expiresAt ? (
+                         <span className={new Date(key.expiresAt) < new Date() ? 'expired-date' : 'active-date'}>
+                           {new Date(key.expiresAt).toLocaleDateString()}
+                         </span>
+                       ) : 'Never'}
+                     </td>
+                     <td className="actions-cell">
+                       <button onClick={() => openEditKeyModal(key)} className="btn-edit">
+                         Edit
+                       </button>
+                       <button onClick={() => toggleApiKey(key.id)} className="btn-toggle">
+                         {key.isActive ? 'Disable' : 'Enable'}
+                       </button>
+                     </td>
+                   </tr>
+                 );
+               })}
              </tbody>
            </table>
           )}
