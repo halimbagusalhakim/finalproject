@@ -33,7 +33,19 @@ router.get('/users', verifyToken, requireAdmin, async (req, res) => {
   try {
     const users = await User.findAll({
       attributes: ['id', 'username', 'email', 'role'],
-      include: [{ model: Apikey, as: 'Apikeys', attributes: ['key', 'isActive'], where: { isActive: true }, required: false }]
+      include: [{
+        model: Apikey,
+        as: 'Apikeys',
+        attributes: ['key', 'isActive'],
+        where: {
+          isActive: true,
+          [require('sequelize').Op.or]: [
+            { expiresAt: null },
+            { expiresAt: { [require('sequelize').Op.gt]: new Date() } }
+          ]
+        },
+        required: false
+      }]
     });
     res.json(users);
   } catch (error) {
@@ -108,6 +120,22 @@ router.put('/api-keys/:id/toggle', verifyToken, requireAdmin, async (req, res) =
     apiKey.isActive = !apiKey.isActive;
     await apiKey.save();
     res.json({ message: 'API key status updated' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.put('/api-keys/:id/expiration', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { expiresAt } = req.body;
+    const apiKey = await Apikey.findByPk(id);
+    if (!apiKey) {
+      return res.status(404).json({ message: 'API key not found' });
+    }
+    apiKey.expiresAt = expiresAt ? new Date(expiresAt) : null;
+    await apiKey.save();
+    res.json({ message: 'API key expiration updated' });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

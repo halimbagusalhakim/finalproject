@@ -146,6 +146,9 @@ td {
 .status-dot.active { color: #00ff00; }
 .status-dot.inactive { color: #ff4d4d; }
 
+.active-date { color: #00ff00; }
+.expired-date { color: #ff4d4d; font-weight: bold; }
+
 /* Buttons in Table */
 .actions-cell { display: flex; gap: 8px; }
 .btn-edit { background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; }

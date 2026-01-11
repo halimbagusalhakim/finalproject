@@ -34,14 +34,65 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
+router.get('/status', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Check for valid (active and non-expired) key
+    const validKey = await Apikey.findOne({
+      where: {
+        userId,
+        isActive: true,
+        [require('sequelize').Op.or]: [
+          { expiresAt: null },
+          { expiresAt: { [require('sequelize').Op.gt]: new Date() } }
+        ]
+      }
+    });
+
+    if (validKey) {
+      return res.json({
+        hasValidKey: true,
+        key: validKey.key,
+        expiresAt: validKey.expiresAt
+      });
+    }
+
+    // Check if user has any expired keys
+    const expiredKey = await Apikey.findOne({
+      where: {
+        userId,
+        isActive: true,
+        expiresAt: { [require('sequelize').Op.lt]: new Date() }
+      }
+    });
+
+    res.json({
+      hasValidKey: false,
+      hasExpiredKey: !!expiredKey
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 router.post('/generate', verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // Check if user already has an active API key
-    const existingKey = await Apikey.findOne({ where: { userId, isActive: true } });
+    // Check if user already has an active and non-expired API key
+    const existingKey = await Apikey.findOne({
+      where: {
+        userId,
+        isActive: true,
+        [require('sequelize').Op.or]: [
+          { expiresAt: null },
+          { expiresAt: { [require('sequelize').Op.gt]: new Date() } }
+        ]
+      }
+    });
     if (existingKey) {
-      return res.json({ key: existingKey.key });
+      return res.json({ key: existingKey.key, expiresAt: existingKey.expiresAt });
     }
 
     // Deactivate any existing inactive keys
@@ -53,7 +104,7 @@ router.post('/generate', verifyToken, async (req, res) => {
     expiresAt.setMonth(expiresAt.getMonth() + 1); // Add 1 month
     const newKey = await Apikey.create({ key, userId, isActive: true, expiresAt });
 
-    res.json({ key: newKey.key });
+    res.json({ key: newKey.key, expiresAt: newKey.expiresAt });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

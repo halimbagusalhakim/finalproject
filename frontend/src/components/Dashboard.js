@@ -11,6 +11,9 @@ function Dashboard() {
   const [isEdit, setIsEdit] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({ username: '', email: '', password: '', role: 'user' });
+  const [editKeyModal, setEditKeyModal] = useState(false);
+  const [editingKey, setEditingKey] = useState(null);
+  const [expirationDate, setExpirationDate] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -59,6 +62,29 @@ function Dashboard() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
+      fetchData();
+    } catch (error) { console.error(error); }
+  };
+
+  const openEditKeyModal = (key) => {
+    setEditingKey(key);
+    setExpirationDate(key.expiresAt ? new Date(key.expiresAt).toISOString().split('T')[0] : '');
+    setEditKeyModal(true);
+  };
+
+  const handleEditKeySubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    try {
+      await fetch(`http://localhost:3001/admin/api-keys/${editingKey.id}/expiration`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ expiresAt: expirationDate || null })
+      });
+      setEditKeyModal(false);
       fetchData();
     } catch (error) { console.error(error); }
   };
@@ -166,8 +192,9 @@ function Dashboard() {
              <thead>
                <tr>
                  <th>Key</th>
-                 <th>User ID</th>
+                 <th>User</th>
                  <th>Status</th>
+                 <th>Expires</th>
                  <th>Actions</th>
                </tr>
              </thead>
@@ -175,13 +202,23 @@ function Dashboard() {
                {apiKeys.map(key => (
                  <tr key={key.id}>
                    <td className="mono-text">{key.key.substring(0, 15)}...</td>
-                   <td>#{key.userId}</td>
+                   <td>{key.User?.username || `User #${key.userId}`}</td>
                    <td>
                      <span className={`status-pill ${key.isActive ? 'on' : 'off'}`}>
                         {key.isActive ? 'Active' : 'Revoked'}
                      </span>
                    </td>
+                   <td>
+                     {key.expiresAt ? (
+                       <span className={new Date(key.expiresAt) < new Date() ? 'expired-date' : 'active-date'}>
+                         {new Date(key.expiresAt).toLocaleDateString()}
+                       </span>
+                     ) : 'Never'}
+                   </td>
                    <td className="actions-cell">
+                     <button onClick={() => openEditKeyModal(key)} className="btn-edit">
+                       Edit
+                     </button>
                      <button onClick={() => toggleApiKey(key.id)} className="btn-toggle">
                        {key.isActive ? 'Disable' : 'Enable'}
                      </button>
@@ -236,6 +273,35 @@ function Dashboard() {
               <div className="modal-actions">
                 <button type="submit" className="btn-save">Save Changes</button>
                 <button type="button" onClick={() => setShowModal(false)} className="btn-cancel">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editKeyModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h3>Edit API Key Expiration</h3>
+            <form onSubmit={handleEditKeySubmit}>
+              <div className="form-field">
+                <label>API Key</label>
+                <input type="text" value={editingKey?.key.substring(0, 20) + '...'} readOnly />
+              </div>
+              <div className="form-field">
+                <label>Expiration Date</label>
+                <input
+                  type="date"
+                  value={expirationDate}
+                  onChange={(e) => setExpirationDate(e.target.value)}
+                />
+                <small style={{ color: '#888', fontSize: '0.8rem' }}>
+                  Leave empty for no expiration
+                </small>
+              </div>
+              <div className="modal-actions">
+                <button type="submit" className="btn-save">Update Expiration</button>
+                <button type="button" onClick={() => setEditKeyModal(false)} className="btn-cancel">Cancel</button>
               </div>
             </form>
           </div>
